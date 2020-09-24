@@ -8,15 +8,15 @@ const responseNotification = require('../library/response.notification.js');
 const logger = require('../modules/data.recording/logger.js');
 
 
-var users = async function(app) {
+var users = function(app) {
 
     //route CREATE
     //route READ - allUsers -
-    app.get('/api/users', (request, response) => {
+    app.get('/api/users', async (request, response) => {
 
         var user = new userModel();
         var sqlGetAllUsers = sqlStatement.selectAll(user.tblName);
-        database.query(sqlGetAllUsers)
+        await database.query(sqlGetAllUsers)
 
         .then(function(result) {
             if (result === undefined || result === null) return;
@@ -27,7 +27,7 @@ var users = async function(app) {
     });
 
     //route READ - SingleUser '/api/user?userId=3'
-    app.get('/api/user', (request, response) => {
+    app.get('/api/user', async (request, response) => {
         logger.resolveLog(request.query.userId);
         var verifiedToken = getProcessedAccessToken(request, response);
         if(!input.isValid(verifiedToken)){
@@ -38,7 +38,7 @@ var users = async function(app) {
         var userId = (userIdIsZero || userIdIsEmpty)? verifiedToken.id: request.query.userId;
         var user = new userModel();
         var sqlGetSingleUser = sqlStatement.selectWhere(user.tblName, user.tblCol.id);
-        database.query(sqlGetSingleUser,[userId])
+        await database.query(sqlGetSingleUser,[userId])
 
         .then(function(result) {
             if(!input.isValid(result)){return null; }
@@ -62,7 +62,9 @@ function getProcessedAccessToken(request, response){
     var tokenInfoObj = jwtCommon.getDecodedJwtTokenPayload(accessToken,jwtConfig.accessTokenSecret);
     var selectedTokenIsVerified = jwtCommon.isDecodedTokenValid(tokenInfoObj);
     if (!selectedTokenIsVerified) {
-        jwtCommon.errorTokenNotValidNotification(request, response);
+        var redirectAction = [{ 'redirectTo': '/auth/logout' }, errorObj];  
+        responseNotification(request, response, 500, 'ERROR', 'Token is not valid. There is an error', redirectAction);
+
         return null;
     }
     return tokenInfoObj.payload;

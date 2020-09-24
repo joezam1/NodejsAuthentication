@@ -5,7 +5,7 @@ const register = require('./auth.controller.methods/register.js');
 const logout = require('./auth.controller.methods/logout.js');
 const createNewToken = require('./auth.controller.methods/token.create.js');
 
-var authentication = async function(app) {
+var authentication = function(app) {
     login(app);
     register(app);
     logout(app);

@@ -1,7 +1,7 @@
 const responseNotification = require('../library/response.notification.js')
 
 
-var home = async function(app) {
+var home = function(app) {
 
     app.get("/", function(request, response) {        
         responseNotification(request, response, 200, 'OK', "Welcome to nodejs application." );

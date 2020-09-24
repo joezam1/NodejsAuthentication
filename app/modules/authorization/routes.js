@@ -55,12 +55,12 @@ var getRouteAuthorizationLevel = function(selectedRoute) {
 
 var isRoutePublic = function(selectedRoute){
     var publicRoutes = getAllPublicRoutes();
-    var routeFound = publicRoutes.find(function(publicRoute){
-        if(publicRoute.route === selectedRoute){
+    for(var i = 0; i<publicRoutes.length;i++){
+        if(publicRoutes[i].route === selectedRoute){
             return true;
         }
-    });
-    return (routeFound)? true: false;
+    }
+    return false;
 }
 
 var authorizationModule = {

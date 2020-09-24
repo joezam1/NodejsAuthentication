@@ -2,14 +2,13 @@
 
 const sessionConfig = require('../../modules/authentication/session/session.config.js');
 const jwtConfig = require('../../modules/authentication/jwt/jwt.config.js');
-const jwtCommon = require('../../modules/authentication/jwt/jwt.common.js');
 const input = require('../../library/input.common.js');
 const responseNotification = require('../../library/response.notification.js');
 
 
 var logout = function(app) {
 
-    app.get('/api/logout', async(request, response) => {
+    app.get('/api/logout', (request, response) => {
         //1-destroy refreshToken;
         //2-redirect to home page;
         try {           

@@ -18,7 +18,7 @@ var login = function(app) {
         var sql = sqlStatement.selectWhere(userReq.tblName, userReq.tblCol.email);
         var userDb = null;
 
-        database.query(sql, [userReq.props.email])
+        await database.query(sql, [userReq.props.email])
 
         .then(async function(result) {
             if (result === undefined) return;
@@ -26,11 +26,17 @@ var login = function(app) {
             //Mysql does not need a permanent open and closing of its connection 
             //database.close();
             //==========================
-            var userExist = validateLoginUser(result, userReq, response);
-            if(!userExist) return;
+            var userExist = validateLoginUser(result);
+            if(!userExist) {
+                responseNotification(request, response, 401, 'UNAUTHORIZED',`login failed. ${userReq.props.email} does not exits`);
+                return;
+            }
             userDb = result[0];
-            var passwordIsValid = await validateLoginPassword(userDb, userReq, response);
-            if(!passwordIsValid) return;
+            var passwordIsValid = await validateLoginPassword(userDb, userReq);
+            if(!passwordIsValid) {
+                responseNotification(request,response, 401, 'UNAUTHORIZED', 'Email or password do not match');            
+                return;
+            }
             var userRole = new userRoleModel();
             var role = new roleModel();
 
@@ -65,25 +71,16 @@ var login = function(app) {
 module.exports = login;
 
 //#region private methods
-function validateLoginUser(result, selectedUser, response) {
+function validateLoginUser(result) {
     if (result.length > 0) {
         return true;
     }
-    var redirect =[{'redirectTo': '/auth/logout'}]
-    responseNotification(request, response, 401, 'UNAUTHORIZED',`login failed. ${selectedUser.props.email} does not exits`, redirect);
-   
     return false;
 }
 
-async function validateLoginPassword(userDb, userRequest, response) {
+async function validateLoginPassword(userDb, userRequest) {
     const comparison = await bcrypt.compare(userRequest.props.password, userDb.password);
-    switch (comparison) {
-        case true:
-            return true;
-        case false:
-            responseNotification(request,response, 401, 'UNAUTHORIZED', 'Email or password do not match');
-            return false;
-    }
+    return comparison;
 }
 
 function getAllRolesFromDb(userRolesDb) {

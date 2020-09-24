@@ -23,37 +23,37 @@ var register = function(app) {
         user.props.updatedAt = new Date(); 
         var selectWhere = sqlStatement.selectWhereOr(user.tblName, user.tblCol.username, user.tblCol.email);
 
-        database.query(selectWhere, [user.props.username, user.props.email])
+        await database.query(selectWhere, [user.props.username, user.props.email])
 
-        .then(function(result) {
+        .then(async function(result) {
             if (result === undefined || result === null) return;
             if (result.length > 0) {
                 validateUserRegistration(request, response, result, user.props.username, user.props.email);
                 return;
             } else {
                 var sqlInsertUser = sqlStatement.insertIntoSet(user.tblName);
-                return database.query(sqlInsertUser, [user.props]);
+                return await database.query(sqlInsertUser, [user.props]);
             }
         })
 
-        .then(function(result) {
+        .then(async function(result) {
             if (result === undefined) return;
             if (result.affectedRows === 1) {
                 user.props.id = result.insertId;
             }
             var role = new roleModel();
             var sqlGetRoles = sqlStatement.selectAll(role.tblName);
-            return database.query(sqlGetRoles);
+            return await database.query(sqlGetRoles);
         })
 
-        .then(function(result) {
+        .then(async function(result) {
             if (result === undefined) return;
             var userRoles = request.body.roles;
             var allRoles = result;
             var userRolesArray = createTableValues(user.props.id, allRoles, userRoles);
             var userRole = new userRoleModel();
             var sqlInsertValues = sqlStatement.insertIntoValues(userRole.tblName, userRole.props);
-            return database.query(sqlInsertValues, [userRolesArray]);
+            return await database.query(sqlInsertValues, [userRolesArray]);
         })
 
         .then(function(result) {
@@ -65,11 +65,10 @@ var register = function(app) {
                 validateDatabaseUserRegistration(result, user, request, response);
 
             }, function(error) {
-                throw new Error('Error: ' + error)
-
+                throw new Error('Error: ' + error);
             })
         .catch((err) => {
-            throw new Error("Error:" + err)
+            throw new Error("Error:" + err);
         });
     });
 }
@@ -79,6 +78,11 @@ module.exports = register;
 // #region private Methods
 function validateUserRegistration(request,response, usersDb, username, email) {
     var message = '';
+    if(request.body.password !== request.body.repeatPassword){
+        responseNotification(request,response, 401, 'UNAUTHORIZED', 'passwords do not match');
+        return;
+    }
+
     for (var a = 0; a < usersDb.length; a++) {
         if (usersDb[a].username === username) {
             message = `the username ${username} is already taken.`;
@@ -98,7 +102,7 @@ function validateUserRegistration(request,response, usersDb, username, email) {
 
 function validateDatabaseUserRegistration(result, selectedUser, request,response) {
     if (result.affectedRows >= 1) {
-        var redirectNotification = [{ "redirectTo": '/auth/logout' }]
+        var redirectNotification = [{ "redirectTo": '/auth/login' }]
         responseNotification(request,response, 200, 'OK', `The username ${selectedUser.props.username} has been registered successfully.`, redirectNotification);
     } else {
         var errorDescription = [{ "result": result }]

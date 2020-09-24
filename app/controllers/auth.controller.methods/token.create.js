@@ -12,7 +12,7 @@ const input = require('../../library/input.common.js');
 //to refresh any token that is invalid due to expiry
 //to avoid too many requests going back and forth.
 var createNewToken = function(app) {
-    app.post('/api/token', async function(request, response) {
+    app.post('/api/token', function(request, response) {
 
         var headerRequestName = 'Refresh_token';
         var refreshTokenHeaderReq = request.header(headerRequestName);
@@ -31,7 +31,9 @@ var createNewToken = function(app) {
                 responseNotification(request, response, 200, "OK", "success. new access-token created", tokenInfo);
             }
         }
-        jwtCommon.forbiddenTokenNotFoundNotification(request, response);
+        
+        var redirectAction = [{ 'redirectTo': '/auth/logout' }];
+        responseNotification(request, response, 403, 'FORBIDDEN', 'Token not found - force redirect', redirectAction);
         return null;
     });
 }

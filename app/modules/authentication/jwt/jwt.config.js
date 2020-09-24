@@ -17,8 +17,8 @@ var millisecondsUnit_str = "";
 
 const jwtConfig = {
 
-    accessTokenTimeout: millisecondsUnit_str + ONE_MINUTE,
-    refreshTokenTimeout: millisecondsUnit_str + FIVE_MINUTES,
+    accessTokenTimeout: millisecondsUnit_str + THIRTY_MINUTES,
+    refreshTokenTimeout: millisecondsUnit_str + TWO_HOURS,
 
     accessTokenSecret: 'thisisalongstringwithacomplexsecretinitsantadoesnotexit',
     refreshTokenSecret: 'thisisalongstringwithacomplexsecretinitlinuxisthebest',

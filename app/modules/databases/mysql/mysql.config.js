@@ -6,10 +6,10 @@ const pool =  {
      }
 
 const mysqlDb = {
-    HOST: "",
-    USER: "",
-    PASSWORD: "",
-    DB: "",
+    HOST: "localhost",
+    USER: "root",
+    PASSWORD: "abc123!@#",
+    DB: "nodejsauth",
     PORT: 3306
 };
 

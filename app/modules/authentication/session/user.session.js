@@ -1,4 +1,3 @@
-const dbConnection = require('../../databases/mysql/db.connection.js');
 const session = require('express-session');
 const storageSessionDb = require('./storage.session.js');
 const logger = require('../../data.recording/logger.js');

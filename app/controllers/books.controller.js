@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const responseNotification = require('../library/response.notification.js');
 
 
@@ -34,7 +33,7 @@ const allBooksCollection = [{
     //Mock Database Response END==================
 
 var books = function(app) {
-    app.get('/api/books', async function(request, response) {
+    app.get('/api/books', function(request, response) {
 
         var allBooksInfo = [{ 'result': allBooksCollection }];
         responseNotification(request,response, 200, 'OK', 'all Books', allBooksInfo);
